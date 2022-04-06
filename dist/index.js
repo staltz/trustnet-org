@@ -5014,6 +5014,52 @@ module.exports = (flag, argv = process.argv) => {
 
 /***/ }),
 
+/***/ 8508:
+/***/ ((module) => {
+
+/**
+ * Print a human readable timestamp to the terminal
+ * given a number representing seconds
+ *
+ * Author: Dave Eddy <dave@daveeddy.com>
+ * Date: 8/18/2014
+ * License: MIT
+ */
+
+module.exports = human;
+
+function human(seconds) {
+  if (seconds instanceof Date)
+    seconds = Math.round((Date.now() - seconds) / 1000);
+  var suffix = seconds < 0 ? 'from now' : 'ago';
+  seconds = Math.abs(seconds);
+
+  var times = [
+    seconds / 60 / 60 / 24 / 365, // years
+    seconds / 60 / 60 / 24 / 30,  // months
+    seconds / 60 / 60 / 24 / 7,   // weeks
+    seconds / 60 / 60 / 24,       // days
+    seconds / 60 / 60,            // hours
+    seconds / 60,                 // minutes
+    seconds                       // seconds
+  ];
+  var names = ['year', 'month', 'week', 'day', 'hour', 'minute', 'second'];
+
+  for (var i = 0; i < names.length; i++) {
+    var time = Math.floor(times[i]);
+    var name = names[i];
+    if (time > 1)
+      name += 's';
+
+    if (time >= 1)
+      return time + ' ' + name + ' ' + suffix;
+  }
+  return '0 seconds ' + suffix;
+}
+
+
+/***/ }),
+
 /***/ 1946:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -14674,6 +14720,7 @@ var __webpack_exports__ = {};
 const {TrustNet} = __nccwpck_require__(5055);
 const core = __nccwpck_require__(3031);
 const github = __nccwpck_require__(2737);
+const humanTime = __nccwpck_require__(8508);
 
 async function listForOrg(octokit, options, cb) {
   for await (const response of octokit.paginate.iterator(
@@ -14709,7 +14756,21 @@ async function run() {
     const trustnet = new TrustNet();
     const trustAssignments = [];
     const repoNames = new Set();
-    const members = new Map(); // id => login (aka username)
+    const members = new Set(); // username
+    const lastActive = {
+      _map: new Map(),
+      update(id, date) {
+        if (this._map.has(id)) {
+          const prev = this._map.get(id);
+          if (date > prev) this._map.set(id, date);
+        } else {
+          this._map.set(id, date);
+        }
+      },
+      get(id) {
+        return this._map.get(id);
+      },
+    };
 
     const {data: pioneerUser} = await octokit.rest.users.getByUsername({
       username: pioneer,
@@ -14726,8 +14787,8 @@ async function run() {
 
     console.log('Members:');
     await listMembers(octokit, {org}, (member) => {
-      console.log('@' + member.login, member.id);
-      members.set(member.id, member.login);
+      console.log(member.login);
+      members.add(member.login);
     });
     console.log('\n');
 
@@ -14745,48 +14806,50 @@ async function run() {
             pull_number: _pr.number,
           });
           prsProcessed += 1;
-          if (pr.merged_at) {
-            if (pr.merged_by && pr.merged_by.id !== pr.user.id) {
-              // console.log(
-              //   'PR #' +
-              //     pr.number +
-              //     ' by ' +
-              //     pr.user.login +
-              //     ' merged by ' +
-              //     pr.merged_by.login,
-              // );
-              trustAssignments.push({
-                src: pr.merged_by.login, // FIXME: change to id?
-                dst: pr.user.login, // FIXME: change to id?
-                weight: 1.0,
-              });
-            }
-            for await (const response of octokit.paginate.iterator(
-              octokit.rest.pulls.listReviews,
-              {owner: org, repo, pull_number: pr.number},
-            )) {
-              const page = response.data;
-              for (const review of page) {
-                if (review.state === 'APPROVED') {
-                  // console.log(
-                  //   'PR #' +
-                  //     pr.number +
-                  //     ' by ' +
-                  //     pr.user.login +
-                  //     ' approved by ' +
-                  //     review.user.login +
-                  //     ' ' +
-                  //     review.author_association,
-                  // );
-                  if (
-                    !pr.merged_by ||
-                    (review.user && review.user.id !== pr.merged_by.id)
-                  ) {
-                    trustAssignments.push({
-                      src: review.user.login, // FIXME: change to id?
-                      dst: pr.user.login, // FIXME: change to id?
-                      weight: 1.0,
-                    });
+          if (pr.created_at) {
+            lastActive.update(pr.user.login, new Date(pr.created_at));
+          }
+          if (!pr.merged_at) continue;
+          if (pr.merged_by && pr.merged_by.id !== pr.user.id) {
+            // console.log(
+            //   'PR #' +
+            //     pr.number +
+            //     ' by ' +
+            //     pr.user.login +
+            //     ' merged by ' +
+            //     pr.merged_by.login,
+            // );
+            const src = pr.merged_by.login;
+            const dst = pr.user.login;
+            trustAssignments.push({src, dst, weight: 1.0});
+            lastActive.update(src, new Date(pr.merged_at));
+          }
+          for await (const response of octokit.paginate.iterator(
+            octokit.rest.pulls.listReviews,
+            {owner: org, repo, pull_number: pr.number},
+          )) {
+            const page = response.data;
+            for (const review of page) {
+              if (review.state === 'APPROVED') {
+                // console.log(
+                //   'PR #' +
+                //     pr.number +
+                //     ' by ' +
+                //     pr.user.login +
+                //     ' approved by ' +
+                //     review.user.login +
+                //     ' ' +
+                //     review.author_association,
+                // );
+                if (
+                  !pr.merged_by ||
+                  (review.user && review.user.id !== pr.merged_by.id)
+                ) {
+                  const src = review.user.login;
+                  const dst = pr.user.login;
+                  trustAssignments.push({src, dst, weight: 1.0});
+                  if (review.submitted_at) {
+                    lastActive.update(src, new Date(review.submitted_at));
                   }
                 }
               }
@@ -14800,7 +14863,18 @@ async function run() {
 
     console.log('Trustnet:');
     trustnet.load(pioneer, trustAssignments, []).then(() => {
-      console.log(trustnet.getRankings());
+      const rankings = trustnet.getRankings();
+      const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
+      for (const [login, score] of sorted) {
+        const isMember = members.has(id);
+        const lastActiveDate = lastActive.get(login);
+        console.log(
+          login,
+          score,
+          humanTime(lastActiveDate),
+          isMember ? 'MEMBER' : '',
+        );
+      }
     });
   } catch (error) {
     core.setFailed(error.message);

@@ -5,6 +5,7 @@ specifiers:
   '@actions/github': ^5.0.1
   '@vercel/ncc': ^0.33.3
   appleseed-metric: ^1.0.1
+  human-time: ^0.0.2
   jest: ^27.2.5
   trustnet: ^1.0.0
 
@@ -12,6 +13,7 @@ dependencies:
   '@actions/core': 1.6.0
   '@actions/github': 5.0.1
   appleseed-metric: 1.0.1
+  human-time: 0.0.2
   trustnet: 1.0.0
 
 devDependencies:
@@ -1423,6 +1425,10 @@ packages:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
     dev: true
+
+  /human-time/0.0.2:
+    resolution: {integrity: sha512-sbYI90YhYmstslPTb70BLGjy6mdESa0lxL7uDR4fIVAx9Iobz8fLEqi7FqF4Q/6vblrzZALg//MsYJlIPBU8SA==}
+    dev: false
 
   /iconv-lite/0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}

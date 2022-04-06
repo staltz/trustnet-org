@@ -27,6 +27,7 @@
     "@actions/core": "^1.2.5",
     "@actions/github": "^5.0.1",
     "appleseed-metric": "^1.0.1",
+    "human-time": "^0.0.2",
     "trustnet": "^1.0.0"
   },
   "devDependencies": {
