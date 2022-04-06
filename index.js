@@ -1,18 +1,19 @@
 const core = require('@actions/core');
-const wait = require('./wait');
+const github = require('@actions/github');
 
-
-// most @actions toolkit packages have async methods
 async function run() {
   try {
-    const ms = core.getInput('milliseconds');
-    core.info(`Waiting ${ms} milliseconds ...`);
+    const token = core.getInput('token');
+    const org = core.getInput('org');
 
-    core.debug((new Date()).toTimeString()); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-    await wait(parseInt(ms));
-    core.info((new Date()).toTimeString());
+    const octokit = github.getOctokit(token);
 
-    core.setOutput('time', new Date().toTimeString());
+    const listForOrg = octokit.rest.repos.listForOrg({org, type: 'sources'});
+    for await (const response of octokit.paginate.iterator(listForOrg)) {
+      // do whatever you want with each response, break out of the loop, etc.
+      console.log(response);
+      core.info(response);
+    }
   } catch (error) {
     core.setFailed(error.message);
   }

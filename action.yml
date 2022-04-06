@@ -1,13 +1,14 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: 'GHA Sandbox'
+description: 'GHA Sandbox'
+
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  token:
+    description: 'A Personal Access token'
     required: true
-    default: '1000'
-outputs:
-  time: # output will be available to future steps
-    description: 'The current time after waiting'
+  org:
+    description: 'GitHub Organization identifier'
+    required: true
+
 runs:
   using: 'node16'
   main: 'dist/index.js'
