@@ -14866,7 +14866,7 @@ async function run() {
       const rankings = trustnet.getRankings();
       const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
       for (const [login, score] of sorted) {
-        const isMember = members.has(id);
+        const isMember = members.has(login);
         const lastActiveDate = lastActive.get(login);
         console.log(
           login,
