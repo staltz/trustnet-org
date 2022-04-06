@@ -27,3 +27,4 @@ jobs:
       with:
         token: ${{ secrets.TEMP_SSBC_MEMBERS }}
         org: ssbc
+        pioneer: dominictarr
