@@ -14754,9 +14754,27 @@ async function run() {
     const octokit = github.getOctokit(token);
 
     const trustnet = new TrustNet();
-    const trustAssignments = [];
     const repoNames = new Set();
     const members = new Set(); // username
+    const approvals = {
+      _map: new Map(),
+      update(src, dst) {
+        if (this._map.has(src)) {
+          const map = this._map.get(src);
+          const prev = map.get(dst) || 0;
+          map.set(dst, prev + 1);
+        } else {
+          this._map.set(src, new Map([[dst, 1]]));
+        }
+      },
+      forEach(cb) {
+        this._map.forEach((map, src) => {
+          map.forEach((weight, dst) => {
+            cb(src, dst, weight);
+          });
+        });
+      },
+    };
     const lastActive = {
       _map: new Map(),
       update(id, date) {
@@ -14821,7 +14839,7 @@ async function run() {
             // );
             const src = pr.merged_by.login;
             const dst = pr.user.login;
-            trustAssignments.push({src, dst, weight: 1.0});
+            approvals.update(src, dst);
             lastActive.update(src, new Date(pr.merged_at));
           }
           for await (const response of octokit.paginate.iterator(
@@ -14847,7 +14865,7 @@ async function run() {
                 ) {
                   const src = review.user.login;
                   const dst = pr.user.login;
-                  trustAssignments.push({src, dst, weight: 1.0});
+                  approvals.update(src, dst);
                   if (review.submitted_at) {
                     lastActive.update(src, new Date(review.submitted_at));
                   }
@@ -14859,6 +14877,14 @@ async function run() {
       }
       console.log(`PRs in ${repo}: ${prsProcessed}`);
     }
+    console.log('\n');
+
+    console.log('Approvals:');
+    const trustAssignments = [];
+    approvals.forEach((src, dst, weight) => {
+      console.log(src, dst, weight);
+      trustAssignments.push({src, dst, weight});
+    });
     console.log('\n');
 
     console.log('Trustnet:');
