@@ -8,14 +8,51 @@ async function run() {
 
     const octokit = github.getOctokit(token);
 
+    const repoNames = new Set();
+
+    console.log('Repos:');
     for await (const response of octokit.paginate.iterator(
       octokit.rest.repos.listForOrg,
       {org, type: 'sources'},
     )) {
-      const page = response.data
+      const page = response.data;
       for (const repo of page) {
         console.log(repo.name);
+        repoNames.add(repo.name);
       }
+    }
+    console.log('\n');
+
+    for (const repoName in repoNames) {
+      console.log('Contributors to ' + repoName + ':');
+      for await (const response of octokit.paginate.iterator(
+        octokit.rest.repos.listContributors,
+        {
+          owner: org,
+          repo: repoName,
+        },
+      )) {
+        const page = response.data;
+        for (const item of page) {
+          console.log(item);
+        }
+      }
+      console.log('\n');
+
+      console.log('Collaborators to ' + repoName + ':');
+      for await (const response of octokit.paginate.iterator(
+        octokit.rest.repos.listCollaborators,
+        {
+          owner: org,
+          repo: repoName,
+        },
+      )) {
+        const page = response.data;
+        for (const item of page) {
+          console.log(item);
+        }
+      }
+      console.log('\n');
     }
   } catch (error) {
     core.setFailed(error.message);
