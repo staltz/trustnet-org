@@ -14746,14 +14746,14 @@ async function run() {
           });
           if (pr.merged_at) {
             if (pr.merged_by.id !== pr.user.id) {
-              console.log(
-                'PR #' +
-                  pr.number +
-                  ' by ' +
-                  pr.user.login +
-                  ' merged by ' +
-                  pr.merged_by.login,
-              );
+              // console.log(
+              //   'PR #' +
+              //     pr.number +
+              //     ' by ' +
+              //     pr.user.login +
+              //     ' merged by ' +
+              //     pr.merged_by.login,
+              // );
               trustAssignments.push({
                 src: pr.merged_by.login, // FIXME: change to id?
                 dst: pr.user.login, // FIXME: change to id?
@@ -14767,16 +14767,16 @@ async function run() {
               const page = response.data;
               for (const review of page) {
                 if (review.state === 'APPROVED') {
-                  console.log(
-                    'PR #' +
-                      pr.number +
-                      ' by ' +
-                      pr.user.login +
-                      ' approved by ' +
-                      review.user.login +
-                      ' ' +
-                      review.author_association,
-                  );
+                  // console.log(
+                  //   'PR #' +
+                  //     pr.number +
+                  //     ' by ' +
+                  //     pr.user.login +
+                  //     ' approved by ' +
+                  //     review.user.login +
+                  //     ' ' +
+                  //     review.author_association,
+                  // );
                   if (review.user.id !== pr.merged_by.id) {
                     trustAssignments.push({
                       src: review.user.login, // FIXME: change to id?
