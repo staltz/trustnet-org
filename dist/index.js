@@ -8479,7 +8479,7 @@ async function run() {
     const octokit = github.getOctokit(token);
 
     const repoNames = new Set();
-    const members = new Set();
+    const members = new Map(); // id => login (aka username)
 
     console.log('Repos:');
     for await (const response of octokit.paginate.iterator(
@@ -8501,8 +8501,8 @@ async function run() {
     )) {
       const page = response.data;
       for (const member of page) {
-        console.log(member);
-        // members.add(repo.login); // FIXME:
+        console.log('@' + member.login, member.id);
+        members.set(member.id, member.login);
       }
     }
     console.log('\n');
