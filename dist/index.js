@@ -8480,9 +8480,9 @@ async function run() {
 
     const listForOrg = octokit.rest.repos.listForOrg({org, type: 'sources'});
     for await (const response of octokit.paginate.iterator(listForOrg)) {
-      // do whatever you want with each response, break out of the loop, etc.
-      console.log(response);
-      core.info(response);
+      console.log('got a response');
+      console.log(response.data);
+      core.info(response.data);
     }
   } catch (error) {
     core.setFailed(error.message);
