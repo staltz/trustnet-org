@@ -37,6 +37,21 @@ async function run() {
     }
     console.log('\n');
 
+    console.log('PRS to ssb-db:');
+    for await (const response of octokit.paginate.iterator(
+      octokit.rest.pulls.list,
+      {owner: org, repo: 'ssb-db', state: 'closed'},
+    )) {
+      const page = response.data;
+      for (const pr of page) {
+        console.log(pr);
+        // if (pr.merged_at) {
+        //   const mergedBy = members.get(pr.merged_by.id);
+        //   console.log('  Merged by:', mergedBy);
+        // }
+      }
+    }
+
     // for (const repoName of repoNames) {
     //   console.log('Contributors to ' + repoName + ':');
     //   for await (const response of octokit.paginate.iterator(
