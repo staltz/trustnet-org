@@ -41,7 +41,7 @@ async function run() {
     const {data: pioneerUser} = octokit.rest.users.getByUsername({
       username: pioneer,
     });
-    console.log('Pioneer:', pioneer, pioneerUser.id);
+    console.log('Pioneer:', pioneerUser);
     console.log('\n');
 
     console.log('Repos:');
