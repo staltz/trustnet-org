@@ -55,23 +55,37 @@ async function run() {
       {owner: org, repo: 'ssb-db', state: 'closed'},
     )) {
       const page = response.data;
-      for (const pr of page) {
+      for (const _pr of page) {
+        const {data: pr} = await octokit.rest.pulls.get({
+          owner: org,
+          repo: 'ssb-db',
+          pull_number: _pr.number,
+        });
         if (pr.merged_at) {
+          if (pr.merged_by.id !== pr.user.id) {
+            console.log(
+              'PR #' +
+                pr.number +
+                ' by ' +
+                pr.user.login +
+                ' merged by ' +
+                pr.merged_by.login,
+            );
+          }
           for await (const response of octokit.paginate.iterator(
             octokit.rest.pulls.listReviews,
             {owner: org, repo: 'ssb-db', pull_number: pr.number},
           )) {
             const page = response.data;
             for (const review of page) {
-              const prReviewer = review.user.id;
               if (review.state === 'APPROVED') {
                 console.log(
                   'PR #' +
                     pr.number +
                     ' by ' +
-                    members.get(pr.user.id) +
+                    pr.user.login +
                     ' approved by ' +
-                    members.get(prReviewer) +
+                    review.user.login +
                     ' ' +
                     review.author_association,
                 );
