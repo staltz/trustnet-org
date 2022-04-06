@@ -8479,6 +8479,7 @@ async function run() {
     const octokit = github.getOctokit(token);
 
     const repoNames = new Set();
+    const members = new Set();
 
     console.log('Repos:');
     for await (const response of octokit.paginate.iterator(
@@ -8493,37 +8494,50 @@ async function run() {
     }
     console.log('\n');
 
-    for (const repoName of repoNames) {
-      console.log('Contributors to ' + repoName + ':');
-      for await (const response of octokit.paginate.iterator(
-        octokit.rest.repos.listContributors,
-        {
-          owner: org,
-          repo: repoName,
-        },
-      )) {
-        const page = response.data;
-        for (const item of page) {
-          console.log(item);
-        }
+    console.log('Members:');
+    for await (const response of octokit.paginate.iterator(
+      octokit.rest.orgs.listMembers,
+      {org},
+    )) {
+      const page = response.data;
+      for (const member of page) {
+        console.log(member);
+        // members.add(repo.login); // FIXME:
       }
-      console.log('\n');
-
-      console.log('Collaborators to ' + repoName + ':');
-      for await (const response of octokit.paginate.iterator(
-        octokit.rest.repos.listCollaborators,
-        {
-          owner: org,
-          repo: repoName,
-        },
-      )) {
-        const page = response.data;
-        for (const item of page) {
-          console.log(item);
-        }
-      }
-      console.log('\n');
     }
+    console.log('\n');
+
+    // for (const repoName of repoNames) {
+    //   console.log('Contributors to ' + repoName + ':');
+    //   for await (const response of octokit.paginate.iterator(
+    //     octokit.rest.repos.listContributors,
+    //     {
+    //       owner: org,
+    //       repo: repoName,
+    //     },
+    //   )) {
+    //     const page = response.data;
+    //     for (const item of page) {
+    //       console.log(item);
+    //     }
+    //   }
+    //   console.log('\n');
+
+    //   console.log('Collaborators to ' + repoName + ':');
+    //   for await (const response of octokit.paginate.iterator(
+    //     octokit.rest.repos.listCollaborators,
+    //     {
+    //       owner: org,
+    //       repo: repoName,
+    //     },
+    //   )) {
+    //     const page = response.data;
+    //     for (const item of page) {
+    //       console.log(item);
+    //     }
+    //   }
+    //   console.log('\n');
+    // }
   } catch (error) {
     core.setFailed(error.message);
   }
