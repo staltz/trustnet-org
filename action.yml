@@ -11,4 +11,4 @@ inputs:
 
 runs:
   using: 'node16'
-  main: 'dist/index.js'
+  main: 'index.js' # FIXME: revert to 'dist/index.js'
