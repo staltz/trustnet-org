@@ -8471,6 +8471,30 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(3031);
 const github = __nccwpck_require__(2737);
 
+async function listForOrg(octokit, options, cb) {
+  for await (const response of octokit.paginate.iterator(
+    octokit.rest.repos.listForOrg,
+    options,
+  )) {
+    const page = response.data;
+    for (const repo of page) {
+      cb(repo);
+    }
+  }
+}
+
+async function listMembers(octokit, options, cb) {
+  for await (const response of octokit.paginate.iterator(
+    octokit.rest.orgs.listMembers,
+    options,
+  )) {
+    const page = response.data;
+    for (const member of page) {
+      cb(member);
+    }
+  }
+}
+
 async function run() {
   try {
     const token = core.getInput('token');
@@ -8482,29 +8506,17 @@ async function run() {
     const members = new Map(); // id => login (aka username)
 
     console.log('Repos:');
-    for await (const response of octokit.paginate.iterator(
-      octokit.rest.repos.listForOrg,
-      {org, type: 'sources'},
-    )) {
-      const page = response.data;
-      for (const repo of page) {
-        console.log(repo.name);
-        repoNames.add(repo.name);
-      }
-    }
+    await listForOrg(octokit, {org, type: 'sources'}, (repo) => {
+      console.log(repo.name);
+      repoNames.add(repo.name);
+    });
     console.log('\n');
 
     console.log('Members:');
-    for await (const response of octokit.paginate.iterator(
-      octokit.rest.orgs.listMembers,
-      {org},
-    )) {
-      const page = response.data;
-      for (const member of page) {
-        console.log('@' + member.login, member.id);
-        members.set(member.id, member.login);
-      }
-    }
+    await listMembers(octokit, {org}, (member) => {
+      console.log('@' + member.login, member.id);
+      members.set(member.id, member.login);
+    });
     console.log('\n');
 
     console.log('PRS to ssb-db:');
@@ -8514,12 +8526,37 @@ async function run() {
     )) {
       const page = response.data;
       for (const pr of page) {
-        console.log(pr);
-        // if (pr.merged_at) {
-        //   const mergedBy = members.get(pr.merged_by.id);
-        //   console.log('  Merged by:', mergedBy);
-        // }
+        if (pr.merged_at) {
+          console.log(pr);
+          const prNum = pr.id;
+          const prAuthor = pr.user.id;
+          for await (const response of octokit.paginate.iterator(
+            octokit.rest.pulls.listReviews,
+            {owner: org, repo: 'ssb-db', pull_number: prNum},
+          )) {
+            const page = response.data;
+            for (const review of page) {
+              const prReviewer = review.user.id;
+              if (review.state === 'APPROVED') {
+                console.log(
+                  'PR #' +
+                    prNum +
+                    ' by ' +
+                    members.get(prAuthor) +
+                    ' approved by ' +
+                    members.get(prReviewer) +
+                    ' ' +
+                    review.author_association,
+                );
+              }
+            }
+          }
+        }
       }
+      // if (pr.merged_at) {
+      //   const mergedBy = members.get(pr.merged_by.id);
+      //   console.log('  Merged by:', mergedBy);
+      // }
     }
 
     // for (const repoName of repoNames) {
