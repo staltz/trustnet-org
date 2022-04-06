@@ -8493,7 +8493,7 @@ async function run() {
     }
     console.log('\n');
 
-    for (const repoName in repoNames) {
+    for (const repoName of repoNames) {
       console.log('Contributors to ' + repoName + ':');
       for await (const response of octokit.paginate.iterator(
         octokit.rest.repos.listContributors,
