@@ -14744,8 +14744,9 @@ async function run() {
             repo,
             pull_number: _pr.number,
           });
+          prsProcessed += 1;
           if (pr.merged_at) {
-            if (pr.merged_by.id !== pr.user.id) {
+            if (pr.merged_by && pr.merged_by.id !== pr.user.id) {
               // console.log(
               //   'PR #' +
               //     pr.number +
@@ -14777,7 +14778,10 @@ async function run() {
                   //     ' ' +
                   //     review.author_association,
                   // );
-                  if (review.user.id !== pr.merged_by.id) {
+                  if (
+                    !pr.merged_by ||
+                    (review.user && review.user.id !== pr.merged_by.id)
+                  ) {
                     trustAssignments.push({
                       src: review.user.login, // FIXME: change to id?
                       dst: pr.user.login, // FIXME: change to id?
