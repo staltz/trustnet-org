@@ -12,8 +12,10 @@ async function run() {
       octokit.rest.repos.listForOrg,
       {org, type: 'sources'},
     )) {
-      console.log('got a response');
-      console.log(response.data);
+      const page = response.data
+      for (const repo of page) {
+        console.log(repo.name);
+      }
     }
   } catch (error) {
     core.setFailed(error.message);
