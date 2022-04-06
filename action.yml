@@ -8,6 +8,9 @@ inputs:
   org:
     description: 'GitHub Organization identifier'
     required: true
+  pioneer:
+    description: 'GitHub User who started it all'
+    require: true
 
 runs:
   using: 'node16'

@@ -5,10 +5,12 @@ specifiers:
   '@actions/github': ^5.0.1
   '@vercel/ncc': ^0.33.3
   jest: ^27.2.5
+  trustnet: ^1.0.0
 
 dependencies:
   '@actions/core': 1.6.0
   '@actions/github': 5.0.1
+  trustnet: 1.0.0
 
 devDependencies:
   '@vercel/ncc': 0.33.3
@@ -1129,7 +1131,6 @@ packages:
         optional: true
     dependencies:
       ms: 2.1.2
-    dev: true
 
   /decimal.js/10.3.1:
     resolution: {integrity: sha512-V0pfhfr8suzyPGOx3nmq4aHqabehUZn6Ch9kyFpV79TGDTWFmHqUqXdabR7QHqxzrYolF4+tVmJhUG4OURg5dQ==}
@@ -2166,7 +2167,6 @@ packages:
 
   /ms/2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
-    dev: true
 
   /natural-compare/1.4.0:
     resolution: {integrity: sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=}
@@ -2393,6 +2393,10 @@ packages:
       xmlchars: 2.2.0
     dev: true
 
+  /seedrandom/3.0.5:
+    resolution: {integrity: sha512-8OwmbklUNzwezjGInmZ+2clQmExQPvomqjL7LFqOYqtmuxRgQYqOD3mHaU+MvZn5FLUeVxVfQjwLZW/n/JFuqg==}
+    dev: false
+
   /semver/6.3.0:
     resolution: {integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==}
     hasBin: true
@@ -2421,6 +2425,10 @@ packages:
   /signal-exit/3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
     dev: true
+
+  /simple-statistics/7.7.5:
+    resolution: {integrity: sha512-CYq683Yg2mb7M4mklQ6FtxEdsYeziGa2giaLvqXobfK1qVqZDKd7BIqLnngnKQSw9GsfNinbiScbfjc3IRWdQA==}
+    dev: false
 
   /sisteransi/1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
@@ -2597,6 +2605,21 @@ packages:
     dependencies:
       punycode: 2.1.1
     dev: true
+
+  /trustnet-graph/1.0.0:
+    resolution: {integrity: sha512-9RoCPxEes/8gQhM1dSp8QKTF8INyc7qY/WkbPSm2kCdMwQKxlyga//wUgt5Dzn+aYqQksh2cH4jl2USgfK2zFg==}
+    dev: false
+
+  /trustnet/1.0.0:
+    resolution: {integrity: sha512-cIfEyO8iiXBnXmotiGCIB5nl5fKEdSzWjiVQHfAjZFJuQdBljjjqis7anmwr0wDBH89/AIvBbesU51MabLsHsQ==}
+    dependencies:
+      debug: 4.3.4
+      seedrandom: 3.0.5
+      simple-statistics: 7.7.5
+      trustnet-graph: 1.0.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /tunnel/0.0.6:
     resolution: {integrity: sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==}
