@@ -117,7 +117,7 @@ async function run() {
           }
         }
       }
-      console.log('PRs in ssb-db: ' + prsProcessed);
+      console.log(`PRs in ${repo}: ${prsProcessed}`);
     }
     console.log('\n');
 
