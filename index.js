@@ -57,12 +57,9 @@ async function run() {
       const page = response.data;
       for (const pr of page) {
         if (pr.merged_at) {
-          console.log(pr);
-          const prNum = pr.id;
-          const prAuthor = pr.user.id;
           for await (const response of octokit.paginate.iterator(
             octokit.rest.pulls.listReviews,
-            {owner: org, repo: 'ssb-db', pull_number: prNum},
+            {owner: org, repo: 'ssb-db', pull_number: pr.number},
           )) {
             const page = response.data;
             for (const review of page) {
@@ -70,9 +67,9 @@ async function run() {
               if (review.state === 'APPROVED') {
                 console.log(
                   'PR #' +
-                    prNum +
+                    pr.number +
                     ' by ' +
-                    members.get(prAuthor) +
+                    members.get(pr.user.id) +
                     ' approved by ' +
                     members.get(prReviewer) +
                     ' ' +
