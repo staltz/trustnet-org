@@ -8,11 +8,12 @@ async function run() {
 
     const octokit = github.getOctokit(token);
 
-    const listForOrg = octokit.rest.repos.listForOrg({org, type: 'sources'});
-    for await (const response of octokit.paginate.iterator(listForOrg)) {
+    for await (const response of octokit.paginate.iterator(
+      octokit.rest.repos.listForOrg,
+      {org, type: 'sources'},
+    )) {
       console.log('got a response');
       console.log(response.data);
-      core.info(response.data);
     }
   } catch (error) {
     core.setFailed(error.message);
