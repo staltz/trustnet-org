@@ -39,13 +39,20 @@ async function run() {
     const members = new Set(); // username
     const approvals = {
       _map: new Map(),
-      update(src, dst) {
+      calcWeight(date) {
+        const ago = humanTime(date);
+        const yearsAgo = ago.includes('year')
+          ? parseInt(ago.split('year')[0].trim(), 10)
+          : 0;
+        return 1 / 2 ** yearsAgo;
+      },
+      update(src, dst, date) {
         if (this._map.has(src)) {
           const map = this._map.get(src);
           const prev = map.get(dst) || 0;
-          map.set(dst, prev + 1);
+          map.set(dst, prev + this.calcWeight(date));
         } else {
-          this._map.set(src, new Map([[dst, 1]]));
+          this._map.set(src, new Map([[dst, this.calcWeight(date)]]));
         }
       },
       forEach(cb) {
@@ -91,7 +98,7 @@ async function run() {
     });
     console.log('\n');
 
-    for (const repo of repoNames) {
+    for (const repo of [...repoNames.values()].slice(0, 10)) {
       let prsProcessed = 0;
       for await (const response of octokit.paginate.iterator(
         octokit.rest.pulls.list,
@@ -120,8 +127,9 @@ async function run() {
             // );
             const src = pr.merged_by.login;
             const dst = pr.user.login;
-            approvals.update(src, dst);
-            lastActive.update(src, new Date(pr.merged_at));
+            const date = new Date(pr.merged_at);
+            approvals.update(src, dst, date);
+            lastActive.update(src, date);
           }
           for await (const response of octokit.paginate.iterator(
             octokit.rest.pulls.listReviews,
@@ -146,10 +154,13 @@ async function run() {
                 ) {
                   const src = review.user.login;
                   const dst = pr.user.login;
-                  approvals.update(src, dst);
-                  if (review.submitted_at) {
-                    lastActive.update(src, new Date(review.submitted_at));
+                  if (!review.submitted_at) {
+                    console.warn('review missing submitted_at:', review);
+                    continue;
                   }
+                  const date = new Date(review.submitted_at);
+                  approvals.update(src, dst, date);
+                  lastActive.update(src, date);
                 }
               }
             }
