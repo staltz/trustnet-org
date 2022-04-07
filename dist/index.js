@@ -14817,7 +14817,7 @@ async function run() {
     });
     console.log('\n');
 
-    for (const repo of [...repoNames.values()].slice(0, 10)) {
+    for (const repo of repoNames) {
       let prsProcessed = 0;
       for await (const response of octokit.paginate.iterator(
         octokit.rest.pulls.list,
@@ -14905,11 +14905,19 @@ async function run() {
       for (const [login, score] of sorted) {
         const isMember = members.has(login);
         const lastActiveDate = lastActive.get(login);
+        const ago = humanTime(lastActiveDate);
+        const action =
+          isMember && ago.includes('year')
+            ? 'TO-REMOVE'
+            : !isMember && score > 2 && !ago.includes('year')
+            ? 'TO-ADD'
+            : '';
         console.log(
           login,
           score,
           humanTime(lastActiveDate),
           isMember ? 'MEMBER' : '',
+          action
         );
       }
     });
