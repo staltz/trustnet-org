@@ -14751,6 +14751,7 @@ async function run() {
     const token = core.getInput('token');
     const org = core.getInput('org');
     const pioneer = core.getInput('pioneer');
+    const threshold = parseInt(core.getInput('threshold') || '3', 10);
     const octokit = github.getOctokit(token);
 
     const trustnet = new TrustNet();
@@ -14909,7 +14910,7 @@ async function run() {
         const action =
           isMember && ago.includes('year')
             ? 'TO-REMOVE'
-            : !isMember && score > 2 && !ago.includes('year')
+            : !isMember && score > threshold && !ago.includes('year')
             ? 'TO-ADD'
             : '';
         console.log(

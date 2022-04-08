@@ -10,7 +10,10 @@ inputs:
     required: true
   pioneer:
     description: 'GitHub User who started it all'
-    require: true
+    required: true
+  threshold:
+    description: 'Lowest Trustnet score to be considered a member'
+    required: false
 
 runs:
   using: 'node16'

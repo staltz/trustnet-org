@@ -28,3 +28,4 @@ jobs:
         token: ${{ secrets.TEMP_SSBC_MEMBERS }}
         org: ssbc
         pioneer: dominictarr
+        threshold: 3
