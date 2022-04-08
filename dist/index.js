@@ -14908,9 +14908,9 @@ async function run() {
         const lastActiveDate = lastActive.get(login);
         const ago = humanTime(lastActiveDate);
         const action =
-          isMember && ago.includes('year')
+          isMember && (ago.includes('year') || score < threshold)
             ? 'TO-REMOVE'
-            : !isMember && score > threshold && !ago.includes('year')
+            : !isMember && score >= threshold && !ago.includes('year')
             ? 'TO-ADD'
             : '';
         console.log(
