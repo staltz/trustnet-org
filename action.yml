@@ -11,14 +11,18 @@ inputs:
   pioneer:
     description: 'GitHub User who started it all'
     required: true
-  threshold:
+  trustThreshold:
     description: 'Lowest Trustnet score to be considered a member'
     required: false
     default: 3
-  smallest:
+  minMemberCount:
     description: 'Lower bound on the number of members in the org'
     required: false
     default: 1
+  inactiveAfter:
+    description: 'Number of months of inactivity after which the member is removed'
+    required: false
+    default: 6
   blocklist:
     description: 'List of GitHub users to never be considered members'
     required: false

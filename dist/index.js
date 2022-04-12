@@ -14752,8 +14752,13 @@ async function run() {
     const org = core.getInput('org');
     const pioneer = core.getInput('pioneer');
     const blocklist = core.getMultilineInput('blocklist').map((s) => s.trim());
-    const threshold = parseInt(core.getInput('threshold'), 10);
+    const trustThreshold = parseInt(core.getInput('trustThreshold'), 10);
+    const minMemberCount = parseInt(core.getInput('minMemberCount'), 10);
+    const inactiveAfter = parseInt(core.getInput('inactiveAfter'), 10);
     const octokit = github.getOctokit(token);
+
+    const tooLongAgo = new Date();
+    tooLongAgo.setMonth(tooLongAgo.getMonth() - inactiveAfter);
 
     const trustnet = new TrustNet();
     const repoNames = new Set();
@@ -14904,46 +14909,73 @@ async function run() {
     trustnet.load(pioneer, trustAssignments, []).then(() => {
       const rankings = trustnet.getRankings();
       const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
+      sorted.unshift([pioneer, Infinity]);
+      const persons = sorted
+        .filter(([username]) => !blocklist.includes(username))
+        .map(([username, trust]) => ({
+          username,
+          trust,
+          isMember: members.has(username),
+          lastActiveDate: lastActive.get(username),
+        }));
+
+      for (const person of persons) {
+        console.log(
+          person.username,
+          person.trust,
+          humanTime(person.lastActiveDate),
+          person.isMember ? 'MEMBER' : '',
+        );
+      }
+      console.log('\n');
+
       let actions = 0;
-      const wouldBeMembers = new Set(...members.values())
-      for (const [login, score] of sorted) {
-        if (blocklist.includes(login)) continue;
-        const isMember = members.has(login);
-        const lastActiveDate = lastActive.get(login);
-        const ago = humanTime(lastActiveDate);
-        const action =
-          isMember && (ago.includes('year') || score < threshold)
-            ? 'TO-REMOVE'
-            : !isMember && score >= threshold && !ago.includes('year')
-            ? 'TO-ADD'
-            : '';
-        if (isMember && ago.includes('year')) {
+      const wouldBeMembers = new Set(...members.values());
+      // Add members
+      for (const person of persons) {
+        if (
+          !person.isMember &&
+          person.trust >= trustThreshold &&
+          person.lastActiveDate > tooLongAgo
+        ) {
           core.notice(
-            `${login} should be removed (last active ${ago})`,
-            {title: 'Remove member'},
-          );
-          actions += 1;
-        } else if (isMember && score < threshold) {
-          core.notice(
-            `${login} should be removed (trustnet ${score.toFixed(1)} < ${threshold})`,
-            {title: 'Remove member'},
-          );
-          actions += 1;
-        } else if (!isMember && score >= threshold && !ago.includes('year')) {
-          core.notice(
-            `${login} should be made a member (trustnet ${score.toFixed(1)} >= ${threshold} and last active ${ago})`,
+            `${person.username} should be made a member ` +
+              `(trustnet ${person.trust.toFixed(1)} >= ${trustThreshold} ` +
+              `and last active ${humanTime(person.lastActiveDate)})`,
             {title: 'Add member'},
           );
+          wouldBeMembers.add(person.username);
           actions += 1;
         }
+      }
 
-        console.log(
-          login,
-          score,
-          humanTime(lastActiveDate),
-          isMember ? 'MEMBER' : '',
-          action,
-        );
+      // Remove members
+      for (const person of persons) {
+        if (
+          person.isMember &&
+          person.lastActiveDate < tooLongAgo &&
+          wouldBeMembers.size > minMemberCount
+        ) {
+          core.notice(
+            `${person.username} should be removed ` +
+              `(last active ${humanTime(person.lastActiveDate)})`,
+            {title: 'Remove member'},
+          );
+          wouldBeMembers.delete(person.username);
+          actions += 1;
+        } else if (
+          person.isMember &&
+          person.trust < trustThreshold &&
+          wouldBeMembers.size > minMemberCount
+        ) {
+          core.notice(
+            `${person.username} should be removed ` +
+              `(trustnet ${person.trust.toFixed(1)} < ${trustThreshold})`,
+            {title: 'Remove member'},
+          );
+          wouldBeMembers.delete(person.username);
+          actions += 1;
+        }
       }
 
       if (actions > 0) {
