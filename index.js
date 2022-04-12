@@ -254,6 +254,8 @@ async function run() {
       // Remove members
       for (const person of persons.reverse()) {
         if (!person.isMember) continue;
+        console.log('wouldBeMembers', wouldBeMembers);
+        console.log('minMemberCount', minMemberCount);
         if (wouldBeMembers.size <= minMemberCount) continue;
         if (person.lastActive < tooLongAgo) {
           core.notice(
