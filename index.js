@@ -100,7 +100,7 @@ async function run() {
     });
     console.log('\n');
 
-    for (const repo of repoNames) {
+    for (const repo of [...repoNames.values()].slice(0, 1)) {
       let prsProcessed = 0;
       for await (const response of octokit.paginate.iterator(
         octokit.rest.pulls.list,
@@ -196,12 +196,29 @@ async function run() {
             : !isMember && score >= threshold && !ago.includes('year')
             ? 'TO-ADD'
             : '';
+        if (isMember && ago.includes('year')) {
+          core.notice(
+            `Member ${login} should be removed (last active ${ago})`,
+            {title: 'Remove member'},
+          );
+        } else if (isMember && score < threshold) {
+          core.notice(
+            `Member ${login} should be removed (trustnet ${score} < ${threshold})`,
+            {title: 'Remove member'},
+          );
+        } else if (isMember && score >= threshold && !ago.includes('year')) {
+          core.notice(
+            `${login} should be made a member (trustnet ${score} >= ${threshold} and last active ${ago})`,
+            {title: 'Add member'},
+          );
+        }
+
         console.log(
           login,
           score,
           humanTime(lastActiveDate),
           isMember ? 'MEMBER' : '',
-          action
+          action,
         );
       }
     });

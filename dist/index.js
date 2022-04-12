@@ -14751,6 +14751,7 @@ async function run() {
     const token = core.getInput('token');
     const org = core.getInput('org');
     const pioneer = core.getInput('pioneer');
+    const blocklist = core.getMultilineInput('blocklist').map((s) => s.trim());
     const threshold = parseInt(core.getInput('threshold') || '3', 10);
     const octokit = github.getOctokit(token);
 
@@ -14818,7 +14819,7 @@ async function run() {
     });
     console.log('\n');
 
-    for (const repo of repoNames) {
+    for (const repo of [...repoNames.values()].slice(0, 1)) {
       let prsProcessed = 0;
       for await (const response of octokit.paginate.iterator(
         octokit.rest.pulls.list,
@@ -14904,6 +14905,7 @@ async function run() {
       const rankings = trustnet.getRankings();
       const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
       for (const [login, score] of sorted) {
+        if (blocklist.includes(login)) continue;
         const isMember = members.has(login);
         const lastActiveDate = lastActive.get(login);
         const ago = humanTime(lastActiveDate);
@@ -14913,12 +14915,29 @@ async function run() {
             : !isMember && score >= threshold && !ago.includes('year')
             ? 'TO-ADD'
             : '';
+        if (isMember && ago.includes('year')) {
+          core.notice(
+            `Member ${login} should be removed (last active ${ago})`,
+            {title: 'Remove member'},
+          );
+        } else if (isMember && score < threshold) {
+          core.notice(
+            `Member ${login} should be removed (trustnet ${score} < ${threshold})`,
+            {title: 'Remove member'},
+          );
+        } else if (isMember && score >= threshold && !ago.includes('year')) {
+          core.notice(
+            `${login} should be made a member (trustnet ${score} >= ${threshold} and last active ${ago})`,
+            {title: 'Add member'},
+          );
+        }
+
         console.log(
           login,
           score,
           humanTime(lastActiveDate),
           isMember ? 'MEMBER' : '',
-          action
+          action,
         );
       }
     });
