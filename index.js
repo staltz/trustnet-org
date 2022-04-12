@@ -252,12 +252,10 @@ async function run() {
       }
 
       // Remove members
-      for (const person of persons) {
-        if (
-          person.isMember &&
-          person.lastActive < tooLongAgo &&
-          wouldBeMembers.size > minMemberCount
-        ) {
+      for (const person of persons.reverse()) {
+        if (!person.isMember) continue;
+        if (wouldBeMembers.size <= minMemberCount) continue;
+        if (person.lastActive < tooLongAgo) {
           core.notice(
             `${person.username} should be removed ` +
               `(last active ${humanTime(person.lastActive)})`,
@@ -265,11 +263,7 @@ async function run() {
           );
           wouldBeMembers.delete(person.username);
           actions += 1;
-        } else if (
-          person.isMember &&
-          person.trust < trustThreshold &&
-          wouldBeMembers.size > minMemberCount
-        ) {
+        } else if (person.trust < trustThreshold) {
           core.notice(
             `${person.username} should be removed ` +
               `(trustnet ${person.trust.toFixed(1)} < ${trustThreshold})`,
