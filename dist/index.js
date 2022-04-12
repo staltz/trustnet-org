@@ -14951,7 +14951,7 @@ async function run() {
       console.log('\n');
 
       let actions = 0;
-      const wouldBeMembers = new Set(...members.values());
+      const wouldBeMembers = new Set(members);
       // Add members
       for (const person of persons) {
         if (
