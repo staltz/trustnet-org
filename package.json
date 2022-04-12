@@ -4,33 +4,34 @@
   "description": "JavaScript Action Template",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint .",
     "prepare": "ncc build index.js -o dist --source-map --license licenses.txt",
     "test": "jest",
-    "all": "npm run lint && npm run prepare && npm run test"
+    "all": "npm run prepare && npm run test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/javascript-action.git"
+    "url": "git+https://github.com/staltz/gha-sandbox.git"
   },
   "keywords": [
     "GitHub",
     "Actions",
     "JavaScript"
   ],
-  "author": "",
-  "license": "MIT",
+  "author": "Andre Staltz <andre@staltz.com>",
+  "license": "AGPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/actions/javascript-action/issues"
+    "url": "https://github.com/staltz/gha-sandbox/issues"
   },
-  "homepage": "https://github.com/actions/javascript-action#readme",
+  "homepage": "https://github.com/staltz/gha-sandbox#readme",
   "dependencies": {
     "@actions/core": "^1.2.5",
-    "@actions/github": "^5.0.1"
+    "@actions/github": "^5.0.1",
+    "appleseed-metric": "^1.0.1",
+    "human-time": "^0.0.2",
+    "trustnet": "^1.0.0"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.33.3",
-    "eslint": "^8.0.0",
     "jest": "^27.2.5"
   }
 }

@@ -8,6 +8,24 @@ inputs:
   org:
     description: 'GitHub Organization identifier'
     required: true
+  pioneer:
+    description: 'GitHub User who started it all'
+    required: true
+  trustThreshold:
+    description: 'Lowest Trustnet score to be considered a member'
+    required: false
+    default: 3
+  minMemberCount:
+    description: 'Lower bound on the number of members in the org'
+    required: false
+    default: 1
+  inactiveAfter:
+    description: 'Number of months of inactivity after which the member is removed'
+    required: false
+    default: 6
+  blocklist:
+    description: 'List of GitHub users to never be considered members'
+    required: false
 
 runs:
   using: 'node16'

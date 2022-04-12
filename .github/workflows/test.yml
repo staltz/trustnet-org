@@ -27,3 +27,9 @@ jobs:
       with:
         token: ${{ secrets.TEMP_SSBC_MEMBERS }}
         org: ssbc
+        pioneer: dominictarr
+        trustThreshold: 3
+        minMemberCount: 3
+        inactiveAfter: 12
+        blocklist: |
+          dependabot[bot]
