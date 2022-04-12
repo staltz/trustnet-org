@@ -14924,7 +14924,6 @@ async function run() {
     console.log('Trustnet:');
     trustnet.load(pioneer, trustAssignments, []).then(() => {
       const trusted = new Set(trustnet.getAllTrusted());
-      console.log('trusted:', [...trusted.values()]);
       const rankings = trustnet.getRankings();
       const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
       sorted.unshift([pioneer, Infinity]);
@@ -14973,8 +14972,6 @@ async function run() {
       // Remove members
       for (const person of persons.reverse()) {
         if (!person.isMember) continue;
-        console.log('wouldBeMembers', wouldBeMembers);
-        console.log('minMemberCount', minMemberCount);
         if (wouldBeMembers.size <= minMemberCount) continue;
         if (person.lastActive < tooLongAgo) {
           core.notice(
