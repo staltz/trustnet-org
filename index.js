@@ -186,6 +186,7 @@ async function run() {
       const rankings = trustnet.getRankings();
       const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
       let actions = 0;
+      const wouldBeMembers = new Set(...members.values())
       for (const [login, score] of sorted) {
         if (blocklist.includes(login)) continue;
         const isMember = members.has(login);

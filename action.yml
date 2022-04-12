@@ -15,6 +15,10 @@ inputs:
     description: 'Lowest Trustnet score to be considered a member'
     required: false
     default: 3
+  smallest:
+    description: 'Lower bound on the number of members in the org'
+    required: false
+    default: 1
   blocklist:
     description: 'List of GitHub users to never be considered members'
     required: false

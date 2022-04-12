@@ -14752,7 +14752,7 @@ async function run() {
     const org = core.getInput('org');
     const pioneer = core.getInput('pioneer');
     const blocklist = core.getMultilineInput('blocklist').map((s) => s.trim());
-    const threshold = parseInt(core.getInput('threshold') || '3', 10);
+    const threshold = parseInt(core.getInput('threshold'), 10);
     const octokit = github.getOctokit(token);
 
     const trustnet = new TrustNet();
@@ -14905,6 +14905,7 @@ async function run() {
       const rankings = trustnet.getRankings();
       const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
       let actions = 0;
+      const wouldBeMembers = new Set(...members.values())
       for (const [login, score] of sorted) {
         if (blocklist.includes(login)) continue;
         const isMember = members.has(login);
@@ -14917,19 +14918,19 @@ async function run() {
             ? 'TO-ADD'
             : '';
         if (isMember && ago.includes('year')) {
-          core.notice(
+          core.info(
             `${login} should be removed (last active ${ago})`,
             {title: 'Remove member'},
           );
           actions += 1;
         } else if (isMember && score < threshold) {
-          core.notice(
+          core.info(
             `${login} should be removed (trustnet ${score.toFixed(1)} < ${threshold})`,
             {title: 'Remove member'},
           );
           actions += 1;
         } else if (!isMember && score >= threshold && !ago.includes('year')) {
-          core.notice(
+          core.info(
             `${login} should be made a member (trustnet ${score.toFixed(1)} >= ${threshold} and last active ${ago})`,
             {title: 'Add member'},
           );
