@@ -149,7 +149,7 @@ async function run() {
     });
     console.log('\n');
 
-    for (const repo of [...repos.values()].slice(0, 3)) {
+    for (const repo of [...repos.values()].slice(0, 1)) {
       let prsProcessed = 0;
       await forEachClosedPR(octokit, org, repo, async (pr) => {
         prsProcessed += 1;
@@ -205,6 +205,7 @@ async function run() {
     console.log('Trustnet:');
     trustnet.load(pioneer, trustAssignments, []).then(() => {
       const trusted = new Set(trustnet.getAllTrusted());
+      console.log('trusted:', [...trusted.values()]);
       const rankings = trustnet.getRankings();
       const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
       sorted.unshift([pioneer, Infinity]);

@@ -14720,7 +14720,12 @@ var __webpack_exports__ = {};
 const {TrustNet} = __nccwpck_require__(5055);
 const core = __nccwpck_require__(3031);
 const github = __nccwpck_require__(2737);
-const humanTime = __nccwpck_require__(8508);
+const libHumanTime = __nccwpck_require__(8508);
+
+function humanTime(date) {
+  if (date === 0) return 'never';
+  else return libHumanTime(date);
+}
 
 class Approvals {
   constructor() {
@@ -14859,10 +14864,11 @@ async function run() {
     await forEachMember(octokit, org, (member) => {
       console.log(member.login);
       members.add(member.login);
+      lastActiveRegistry.update(member.login, 0);
     });
     console.log('\n');
 
-    for (const repo of [...repos.values()].slice(0, 3)) {
+    for (const repo of [...repos.values()].slice(0, 1)) {
       let prsProcessed = 0;
       await forEachClosedPR(octokit, org, repo, async (pr) => {
         prsProcessed += 1;
@@ -14917,9 +14923,14 @@ async function run() {
 
     console.log('Trustnet:');
     trustnet.load(pioneer, trustAssignments, []).then(() => {
+      const trusted = new Set(trustnet.getAllTrusted());
+      console.log('trusted:', [...trusted.values()]);
       const rankings = trustnet.getRankings();
       const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
       sorted.unshift([pioneer, Infinity]);
+      for (const member of members) {
+        if (!trusted.has(member)) sorted.push([member, 0]);
+      }
       const persons = sorted
         .filter(([username]) => !blocklist.includes(username))
         .map(([username, trust]) => ({
