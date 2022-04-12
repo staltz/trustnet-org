@@ -149,7 +149,7 @@ async function run() {
     });
     console.log('\n');
 
-    for (const repo of [...repos.values()].slice(0, 1)) {
+    for (const repo of repos) {
       let prsProcessed = 0;
       await forEachClosedPR(octokit, org, repo, async (pr) => {
         prsProcessed += 1;
