@@ -1,7 +1,7 @@
 {
-  "name": "javascript-action",
+  "name": "trustnet-org",
   "version": "1.0.0",
-  "description": "JavaScript Action Template",
+  "description": "GitHub Action to determine members of a GitHub org based on computed trust",
   "main": "index.js",
   "scripts": {
     "prepare": "ncc build index.js -o dist --source-map --license licenses.txt",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/staltz/gha-sandbox.git"
+    "url": "git+https://github.com/staltz/trustnet-org.git"
   },
   "keywords": [
     "GitHub",
@@ -20,9 +20,9 @@
   "author": "Andre Staltz <andre@staltz.com>",
   "license": "AGPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/staltz/gha-sandbox/issues"
+    "url": "https://github.com/staltz/trustnet-org/issues"
   },
-  "homepage": "https://github.com/staltz/gha-sandbox#readme",
+  "homepage": "https://github.com/staltz/trustnet-org#readme",
   "dependencies": {
     "@actions/core": "^1.2.5",
     "@actions/github": "^5.0.1",
