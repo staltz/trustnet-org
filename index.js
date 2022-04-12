@@ -1,7 +1,12 @@
 const {TrustNet} = require('trustnet');
 const core = require('@actions/core');
 const github = require('@actions/github');
-const humanTime = require('human-time');
+const libHumanTime = require('human-time');
+
+function humanTime(date) {
+  if (date === 0) return 'never';
+  else return libHumanTime(date);
+}
 
 class Approvals {
   constructor() {
@@ -140,6 +145,7 @@ async function run() {
     await forEachMember(octokit, org, (member) => {
       console.log(member.login);
       members.add(member.login);
+      lastActiveRegistry.update(member.login, 0);
     });
     console.log('\n');
 
@@ -198,9 +204,13 @@ async function run() {
 
     console.log('Trustnet:');
     trustnet.load(pioneer, trustAssignments, []).then(() => {
+      const trusted = new Set(trustnet.getAllTrusted());
       const rankings = trustnet.getRankings();
       const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
       sorted.unshift([pioneer, Infinity]);
+      for (const member of members) {
+        if (!trusted.has(member)) sorted.push([member, 0]);
+      }
       const persons = sorted
         .filter(([username]) => !blocklist.includes(username))
         .map(([username, trust]) => ({
