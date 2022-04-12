@@ -198,19 +198,19 @@ async function run() {
             ? 'TO-ADD'
             : '';
         if (isMember && ago.includes('year')) {
-          core.notice(
+          core.info(
             `${login} should be removed (last active ${ago})`,
             {title: 'Remove member'},
           );
           actions += 1;
         } else if (isMember && score < threshold) {
-          core.notice(
+          core.info(
             `${login} should be removed (trustnet ${score.toFixed(1)} < ${threshold})`,
             {title: 'Remove member'},
           );
           actions += 1;
         } else if (!isMember && score >= threshold && !ago.includes('year')) {
-          core.notice(
+          core.info(
             `${login} should be made a member (trustnet ${score.toFixed(1)} >= ${threshold} and last active ${ago})`,
             {title: 'Add member'},
           );
