@@ -33,7 +33,7 @@ async function run() {
     const org = core.getInput('org');
     const pioneer = core.getInput('pioneer');
     const blocklist = core.getMultilineInput('blocklist').map((s) => s.trim());
-    const threshold = parseInt(core.getInput('threshold') || '3', 10);
+    const threshold = parseInt(core.getInput('threshold'), 10);
     const octokit = github.getOctokit(token);
 
     const trustnet = new TrustNet();
