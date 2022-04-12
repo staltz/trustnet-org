@@ -29,3 +29,5 @@ jobs:
         org: ssbc
         pioneer: dominictarr
         threshold: 3
+        blocklist:
+          - dependabot[bot]

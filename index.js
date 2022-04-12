@@ -32,6 +32,7 @@ async function run() {
     const token = core.getInput('token');
     const org = core.getInput('org');
     const pioneer = core.getInput('pioneer');
+    const blocklist = core.getMultilineInput('blocklist').map((s) => s.trim());
     const threshold = parseInt(core.getInput('threshold') || '3', 10);
     const octokit = github.getOctokit(token);
 
@@ -185,6 +186,7 @@ async function run() {
       const rankings = trustnet.getRankings();
       const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
       for (const [login, score] of sorted) {
+        if (blocklist.includes(login)) continue;
         const isMember = members.has(login);
         const lastActiveDate = lastActive.get(login);
         const ago = humanTime(lastActiveDate);
