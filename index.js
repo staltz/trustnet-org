@@ -185,6 +185,7 @@ async function run() {
     trustnet.load(pioneer, trustAssignments, []).then(() => {
       const rankings = trustnet.getRankings();
       const sorted = Object.entries(rankings).sort((a, b) => b[1] - a[1]);
+      let actions = 0;
       for (const [login, score] of sorted) {
         if (blocklist.includes(login)) continue;
         const isMember = members.has(login);
@@ -198,19 +199,22 @@ async function run() {
             : '';
         if (isMember && ago.includes('year')) {
           core.notice(
-            `Member ${login} should be removed (last active ${ago})`,
+            `${login} should be removed (last active ${ago})`,
             {title: 'Remove member'},
           );
+          actions += 1;
         } else if (isMember && score < threshold) {
           core.notice(
-            `Member ${login} should be removed (trustnet ${score} < ${threshold})`,
+            `${login} should be removed (trustnet ${score.toFixed(1)} < ${threshold})`,
             {title: 'Remove member'},
           );
-        } else if (isMember && score >= threshold && !ago.includes('year')) {
+          actions += 1;
+        } else if (!isMember && score >= threshold && !ago.includes('year')) {
           core.notice(
-            `${login} should be made a member (trustnet ${score} >= ${threshold} and last active ${ago})`,
+            `${login} should be made a member (trustnet ${score.toFixed(1)} >= ${threshold} and last active ${ago})`,
             {title: 'Add member'},
           );
+          actions += 1;
         }
 
         console.log(
@@ -220,6 +224,10 @@ async function run() {
           isMember ? 'MEMBER' : '',
           action,
         );
+      }
+
+      if (actions > 0) {
+        core.setFailed(`${actions} actions need to be done`);
       }
     });
   } catch (error) {
