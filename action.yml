@@ -1,5 +1,5 @@
-name: 'GHA Sandbox'
-description: 'GHA Sandbox'
+name: 'TrustNet Org'
+description: 'Determine members of a GitHub org based on computed trust'
 
 inputs:
   token:
