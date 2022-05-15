@@ -33,3 +33,5 @@ jobs:
         inactiveAfter: 12
         blocklist: |
           dependabot[bot]
+        ignoreRepos: |
+          .github

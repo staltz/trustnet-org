@@ -14836,6 +14836,9 @@ async function run() {
     const org = core.getInput('org');
     const pioneer = core.getInput('pioneer');
     const blocklist = core.getMultilineInput('blocklist').map((s) => s.trim());
+    const ignoreRepos = core
+      .getMultilineInput('ignoreRepos')
+      .map((s) => s.trim());
     const trustThreshold = parseInt(core.getInput('trustThreshold'), 10);
     const minMemberCount = parseInt(core.getInput('minMemberCount'), 10);
     const inactiveAfter = Math.max(
@@ -14870,6 +14873,7 @@ async function run() {
 
     for (const repo of repos) {
       let prsProcessed = 0;
+      if (ignoreRepos.includes(repo)) continue;
       await forEachClosedPR(octokit, org, repo, async (pr) => {
         prsProcessed += 1;
         if (pr.created_at) {

@@ -26,6 +26,9 @@ inputs:
   blocklist:
     description: 'List of GitHub users to never be considered members'
     required: false
+  ignoreRepos:
+    description: 'List of GitHub repositories to not consider for pull requests'
+    required: false
 
 runs:
   using: 'node16'
