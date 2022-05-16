@@ -139,8 +139,10 @@ async function run() {
 
     console.log('Repos:');
     await forEachSourceRepo(octokit, org, (repo) => {
-      console.log(repo.name);
-      repos.add(repo.name);
+      if (!ignoreRepos.includes(repo.name)) {
+        console.log(repo.name);
+        repos.add(repo.name);
+      }
     });
     console.log('\n');
 
@@ -154,7 +156,6 @@ async function run() {
 
     for (const repo of repos) {
       let prsProcessed = 0;
-      if (ignoreRepos.includes(repo)) continue;
       await forEachClosedPR(octokit, org, repo, async (pr) => {
         prsProcessed += 1;
         if (pr.created_at) {
