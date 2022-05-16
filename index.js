@@ -1,11 +1,48 @@
 const {TrustNet} = require('trustnet');
 const core = require('@actions/core');
-const github = require('@actions/github');
 const libHumanTime = require('human-time');
+const {restEndpointMethods} = require('@octokit/plugin-rest-endpoint-methods');
+const {paginateRest} = require('@octokit/plugin-paginate-rest');
+const {Octokit} = require('@octokit/core');
+const httpClient = require('@actions/http-client');
+const {throttling} = require('@octokit/plugin-throttling');
 
 function humanTime(date) {
   if (date === 0) return 'never';
   else return libHumanTime(date);
+}
+
+function getOctokit(token) {
+  const baseUrl = process.env['GITHUB_API_URL'] || 'https://api.github.com';
+  const agent = new httpClient.HttpClient().getAgent(baseUrl);
+  const GitHub = Octokit.plugin(
+    restEndpointMethods,
+    paginateRest,
+    throttling,
+  ).defaults({baseUrl, request: {agent}});
+
+  return new GitHub({
+    auth: `token ${token}`,
+    throttle: {
+      onRateLimit: (retryAfter, options, octokit) => {
+        octokit.log.warn(
+          `Request quota exhausted for request ${options.method} ${options.url}`,
+        );
+
+        if (options.request.retryCount === 0) {
+          // only retries once
+          octokit.log.info(`Retrying after ${retryAfter} seconds!`);
+          return true;
+        }
+      },
+      onSecondaryRateLimit: (retryAfter, options, octokit) => {
+        // does not retry, only logs a warning
+        octokit.log.warn(
+          `SecondaryRateLimit detected for request ${options.method} ${options.url}`,
+        );
+      },
+    },
+  });
 }
 
 class Approvals {
@@ -126,7 +163,7 @@ async function run() {
       1,
       parseInt(core.getInput('inactiveAfter'), 10),
     );
-    const octokit = github.getOctokit(token);
+    const octokit = getOctokit(token);
 
     const tooLongAgo = new Date();
     tooLongAgo.setMonth(tooLongAgo.getMonth() - inactiveAfter);
