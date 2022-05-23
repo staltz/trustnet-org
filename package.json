@@ -1,6 +1,6 @@
 {
   "name": "trustnet-org",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "GitHub Action to determine members of a GitHub org based on computed trust",
   "main": "index.js",
   "scripts": {
