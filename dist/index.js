@@ -16734,6 +16734,7 @@ const {restEndpointMethods} = __nccwpck_require__(5070);
 const {paginateRest} = __nccwpck_require__(5077);
 const {Octokit} = __nccwpck_require__(2043);
 const httpClient = __nccwpck_require__(4199);
+const sleep = (__nccwpck_require__(3837).promisify)(setTimeout);
 const {throttling} = __nccwpck_require__(9191);
 
 function humanTime(date) {
@@ -16757,6 +16758,7 @@ function getOctokit(token) {
         octokit.log.warn(
           `Request quota exhausted for request ${options.method} ${options.url}`,
         );
+        octokit.log.warn(options);
 
         if (options.request.retryCount === 0) {
           // only retries once
@@ -16922,6 +16924,7 @@ async function run() {
 
     for (const repo of repos) {
       let prsProcessed = 0;
+      await sleep(30e3);
       await forEachClosedPR(octokit, org, repo, async (pr) => {
         prsProcessed += 1;
         if (pr.created_at) {

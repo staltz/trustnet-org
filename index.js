@@ -5,6 +5,7 @@ const {restEndpointMethods} = require('@octokit/plugin-rest-endpoint-methods');
 const {paginateRest} = require('@octokit/plugin-paginate-rest');
 const {Octokit} = require('@octokit/core');
 const httpClient = require('@actions/http-client');
+const sleep = require('util').promisify(setTimeout);
 const {throttling} = require('@octokit/plugin-throttling');
 
 function humanTime(date) {
@@ -28,6 +29,7 @@ function getOctokit(token) {
         octokit.log.warn(
           `Request quota exhausted for request ${options.method} ${options.url}`,
         );
+        octokit.log.warn(options);
 
         if (options.request.retryCount === 0) {
           // only retries once
@@ -193,6 +195,7 @@ async function run() {
 
     for (const repo of repos) {
       let prsProcessed = 0;
+      await sleep(30e3);
       await forEachClosedPR(octokit, org, repo, async (pr) => {
         prsProcessed += 1;
         if (pr.created_at) {
