@@ -29,7 +29,7 @@
     "@octokit/core": "^3.6.0",
     "@octokit/plugin-paginate-rest": "^2.17.0",
     "@octokit/plugin-rest-endpoint-methods": "^5.13.0",
-    "@octokit/plugin-throttling": "^3.6.2",
+    "@octokit/plugin-throttling": "^4.0.0",
     "appleseed-metric": "^1.0.1",
     "human-time": "^0.0.2",
     "trustnet": "^1.0.0"
